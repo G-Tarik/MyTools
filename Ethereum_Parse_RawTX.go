@@ -10,7 +10,7 @@ import (
         "github.com/ethereum/go-ethereum/rlp"
         "github.com/ethereum/go-ethereum/core/types"
         "github.com/ethereum/go-ethereum/common"
-        //"github.com/ethereum/go-ethereum/params"
+        "github.com/ethereum/go-ethereum/params"
 )
 
 const (
@@ -19,14 +19,21 @@ const (
 )
 
 
-func getPubKey(messageToSign,sig []byte) {
-	pub, err_pub := crypto.SigToPub(messageToSign, sig)
-	if err_pub != nil {fmt.Println("err_pub1: ",err_pub)}
+func getPubKey( messageToSign []byte, sig [][]byte, from common.Address ) {
 
-	//pub1Bytes := crypto.FromECDSAPub(pub1)[1:]
-	fmt.Printf("pubX:%d\npubY:%d\n", pub.X, pub.Y)
-	addr := crypto.PubkeyToAddress(*pub).String()
-	fmt.Printf("Address from signature:\n%v\n", addr[2:])
+	for _,v := range sig{
+		pub, err_pub := crypto.SigToPub( messageToSign, v )
+		if err_pub != nil {
+			fmt.Println("err_pub: ",err_pub)
+			continue
+		}
+		addr := crypto.PubkeyToAddress(*pub)
+		if from == addr {
+			fmt.Printf("Address from signature:\n%x\n", addr)
+			fmt.Printf("pubX:%d\npubY:%d\n", pub.X, pub.Y)
+			break
+		}
+	}
 }
 
 
@@ -72,15 +79,14 @@ func main() {
 	fmt.Println(tx)
 
 	//signer := types.NewEIP155Signer(big.NewInt(CHAIN_ID))
-	//signer := types.MakeSigner( params.MainnetChainConfig, big.NewInt(4989292) )
-	//fromAddr, _ := signer.Sender(tx)
-	//tx_to_sign := signer.Hash(tx)
+	signer := types.MakeSigner( params.MainnetChainConfig, big.NewInt(4989292) )
+	fromAddr, _ := signer.Sender(tx)
 
-	tx_to_sign := getMessage(tx)
+	tx_to_sign := signer.Hash(tx)
+	//tx_to_sign := getMessage(tx)
 	msg := tx_to_sign.Bytes()
-	V,R,S := tx.RawSignatureValues()
-	v := new(big.Int).Sub( V, big.NewInt(27) )
-
-	sig,_ := hex.DecodeString( R.Text(16) + S.Text(16) + "0" + v.String() )
-	getPubKey( msg, sig )
+	_,R,S := tx.RawSignatureValues()
+	sig1,_ := hex.DecodeString( R.Text(16) + S.Text(16) + "00" )
+	sig2,_ := hex.DecodeString( R.Text(16) + S.Text(16) + "01" )
+	getPubKey( msg, [][]byte{sig1, sig2}, fromAddr )
 }
