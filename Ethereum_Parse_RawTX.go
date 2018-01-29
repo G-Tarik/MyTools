@@ -71,7 +71,7 @@ func getMessage(tx *types.Transaction) common.Hash {
 func main() {
 	var tx *types.Transaction
 	scanner := bufio.NewScanner(os.Stdin)
-	fmt.Println("Provide raw transaction:\n")
+	fmt.Println("Provide raw transaction without leading '0x':\n")
 	scanner.Scan()
 	data := scanner.Text()
 	rawtx,_ := hex.DecodeString(data)
