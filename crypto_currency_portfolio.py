@@ -15,7 +15,8 @@ def printProfits( profits, coins ):
     
 
 def getRates(pair, exch):
-
+    # pair value might looks like "XMR-BTC" or "LTC-ETH_1" if the same coin was bought at different price and different amount
+    pair = pair.split('_')[0]
     exchange = {
                 'bittrex': {'url': 'https://bittrex.com/api/v1.1/public/getticker?market=',
                             'error': 'message',
