@@ -10,6 +10,7 @@ def printProfits( profits, coins ):
                            f'{v["profitUSD"]:.2F}', f'{v["profit"]:.2F}', f'{v["AmountUSD"]:.2F}', f'{coins[k]["amount"]:.8F}' ])
         
     col_width = [ max( len(w) for w in line ) for line in zip(*lines) ]
+    print('\n')
     for line in lines:
         print( ' :'.join( word.rjust( col_width[i] + 2 ) for i,word in enumerate(line) ) )
 
