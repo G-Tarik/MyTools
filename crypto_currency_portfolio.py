@@ -3,18 +3,18 @@ import requests, json, sys
 
 
 def printProfits( profits, coins ):
-    lines = [ [ 'coin', 'buy$', 'last$', 'buy', 'last', 'profitUSD', 'profit', 'AmountUSD' ] ]
+    lines = [ [ 'coin', 'buy$', 'last$', 'buy', 'last', 'profitUSD', 'profit', 'AmountUSD', 'Amount' ] ]
 
     for k,v in profits.items():
         lines.append( [ k, f'{coins[k]["usdPrice"]:.4F}', f'{v["usdLast"]:.4F}', f'{coins[k]["price"]:.8F}', f'{v["last"]:.8F}', 
-                           f'{v["profitUSD"]:.2F}', f'{v["profit"]:.2F}', f'{v["AmountUSD"]:.2F}' ] )
+                           f'{v["profitUSD"]:.2F}', f'{v["profit"]:.2F}', f'{v["AmountUSD"]:.2F}', f'{coins[k]["amount"]:.8F}' ])
         
-    col_width = max( len(w) for l in lines for w in l ) + 2
+    col_width = [ max( len(w) for w in line ) for line in zip(*lines) ]
     for line in lines:
-        print( ' :'.join( word.rjust(col_width) for word in line) )
-    
+        print( ' :'.join( word.rjust( col_width[i] + 2 ) for i,word in enumerate(line) ) )
 
-def getRates(pair, exch):
+
+def getRates( pair, exch ):
     # pair value might looks like "XMR-BTC" or "LTC-ETH_1" if the same coin was bought at different price and different amount
     pair = pair.split('_')[0]
     exchange = {
